@@ -2,6 +2,7 @@
 import subprocess
 from colorama import Fore
 import os
+import sys
 
 def list_disks():
     result = subprocess.run(['lsblk', '-o', 'NAME,RM,TYPE,SIZE'], stdout=subprocess.PIPE, text=True)
@@ -101,6 +102,9 @@ def download_image(image_name, image_url):
         exit(1)
 
 def main():
+    # Check for the -keep argument
+    keep_file = '-keep' in sys.argv
+
     images = {
         "Kali": {
             "Raspberry Pi": {
@@ -137,13 +141,15 @@ def main():
         },
         "Parrot": {
             "Desktop Installer": {
-                1: {"name": "Parrot Desktop Installer", "url": "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04-preinstalled-desktop-arm64+raspi.img.xz"},
+                1: {"name": "Parrot Desktop Installer", "url":
+
+ "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04-preinstalled-desktop-arm64+raspi.img.xz"},
                 }
         }
     }
 
     print('\n')
-    
+
     disks = list_disks()
 
     for i, disk in enumerate(disks, 1):
@@ -176,11 +182,13 @@ def main():
 
     # Use the downloaded file name with xzcat
     subprocess.run(f'xzcat {downloaded_file} | sudo dd of={selected_disk} bs=4M conv=fsync status=progress', shell=True)
-    subprocess.run(f'rm {downloaded_file}',shell=True)
+
+    if not keep_file:
+        subprocess.run(f'rm {downloaded_file}', shell=True)
+    
     os.system('clear')
     print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + str(image_selection["name"]))
     print(Fore.LIGHTGREEN_EX + 'Successfully Installed Image ' + Fore.CYAN + str(image_selection["name"]) + Fore.LIGHTGREEN_EX + ' At ' + Fore.CYAN + str(selected_disk) + Fore.RESET)
-
 
 if __name__ == "__main__":
     main()
