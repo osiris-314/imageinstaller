@@ -86,9 +86,16 @@ def display_image_options(os_selection, platform, images):
 def download_image(image_name, image_url):
     os.system('clear')
     print(Fore.LIGHTBLUE_EX + 'Downloading Image ' + Fore.LIGHTGREEN_EX + str(image_name) + Fore.LIGHTBLUE_EX + ' ...' + Fore.RESET)
+    
+    # Extract file name from URL
+    file_name = image_url.split('/')[-1]
+    
+    # Download the image
     result = subprocess.run(f'curl -O {image_url}', shell=True)
+    
     if result.returncode == 0:
         print(Fore.GREEN + "Download complete!" + Fore.RESET)
+        return file_name
     else:
         print(Fore.RED + "Error downloading the image." + Fore.RESET)
         exit(1)
@@ -160,17 +167,20 @@ def main():
     platform_selection = display_platform_options(os_selection, images)
     image_selection = display_image_options(os_selection, platform_selection, images)
     
-    download_image(image_selection["name"], image_selection["url"])
+    # Download the image and get the file name
+    downloaded_file = download_image(image_selection["name"], image_selection["url"])
 
-
-    os.system(f'clear && umount {selected_disk}*')
-    print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + image_choice)
-    print(Fore.LIGHTBLUE_EX + 'Installing ' + Fore.LIGHTGREEN_EX + str(image_choice) + Fore.LIGHTBLUE_EX + ' To ' + Fore.CYAN + str(disk_choice) + Fore.LIGHTBLUE_EX + ' ...' + Fore.RESET)
-    subprocess.run(f'xzcat {image_selection["name"]} | sudo dd of={selected_disk} bs=4M conv=fsync status=progress', shell=True)
     os.system('clear')
-    print(image_selection)
-    print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + image_choice)
-    print(Fore.LIGHTGREEN_EX + 'Successfully Installed Image ' + Fore.CYAN + image_choice + Fore.LIGHTGREEN_EX + ' At ' + Fore.CYAN + disk_choice + Fore.RESET)
+    print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + str(image_selection["name"]))
+    print(Fore.LIGHTBLUE_EX + 'Installing ' + Fore.LIGHTGREEN_EX + str(image_selection["name"]) + Fore.LIGHTBLUE_EX + ' At ' + Fore.CYAN + str(selected_disk) + Fore.LIGHTBLUE_EX + ' ...' + Fore.RESET)
+
+    # Use the downloaded file name with xzcat
+    subprocess.run(f'xzcat {downloaded_file} | sudo dd of={selected_disk} bs=4M conv=fsync status=progress', shell=True)
+    subprocess.run(f'rm {downloaded_file}',shell=True)
+    os.system('clear')
+    print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + str(image_selection["name"]))
+    print(Fore.LIGHTGREEN_EX + 'Successfully Installed Image ' + Fore.CYAN + str(image_selection["name"]) + Fore.LIGHTGREEN_EX + ' At ' + Fore.CYAN + str(selected_disk) + Fore.RESET)
+
 
 if __name__ == "__main__":
     main()
