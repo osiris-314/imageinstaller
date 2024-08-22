@@ -160,7 +160,7 @@ def main():
             rem = 'Non-Removable'
         print(Fore.LIGHTBLUE_EX + str(i) + '. ' + Fore.CYAN + str(name) + Fore.WHITE + ' - ' + Fore.LIGHTGREEN_EX + str(size) + Fore.WHITE + ' - ' + Fore.YELLOW + str(rem) + Fore.RESET)
     global disk_choice
-    disk_choice = int(input(Fore.LIGHTBLUE_EX + "Select the disk to install to (enter number): " + Fore.RESET))
+    disk_choice = int(input("Select the disk to install to (enter number): "))
 
     if 1 <= disk_choice <= len(disks):
         selected_disk = disks[disk_choice - 1][0]
