@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
-import argparse
-from colorama import Fore, Style
+from colorama import Fore
 import os
 
 def list_disks():
