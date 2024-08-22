@@ -2,6 +2,12 @@
 
 usage: python imageinstaller.py
 
+## Keep Image File
+By default the downloaded image file gets deleted at the end of the script, to keep the file add the '-keep' argument.
+
+usage: python imageinstaller.py -keep
+#
+
 ## Disk Selection Menu
 ![disk_selection](https://github.com/user-attachments/assets/2b2e7764-c06f-430f-8467-39d08063c894)
 
