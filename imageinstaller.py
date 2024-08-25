@@ -2,7 +2,9 @@
 import subprocess
 from colorama import Fore
 import os
+import os.path
 import sys
+import time
 
 def list_disks():
     result = subprocess.run(['lsblk', '-o', 'NAME,RM,TYPE,SIZE'], stdout=subprocess.PIPE, text=True)
@@ -87,11 +89,7 @@ def display_image_options(os_selection, platform, images):
 def download_image(image_name, image_url):
     os.system('clear')
     print(Fore.LIGHTBLUE_EX + 'Downloading Image ' + Fore.LIGHTGREEN_EX + str(image_name) + Fore.LIGHTBLUE_EX + ' ...' + Fore.RESET)
-    
-    # Extract file name from URL
     file_name = image_url.split('/')[-1]
-    
-    # Download the image
     result = subprocess.run(f'curl -O {image_url}', shell=True)
     
     if result.returncode == 0:
@@ -102,7 +100,6 @@ def download_image(image_name, image_url):
         exit(1)
 
 def main():
-    # Check for the -keep argument
     keep_file = '-keep' in sys.argv
 
     images = {
@@ -172,23 +169,54 @@ def main():
     os_selection = display_os_options()
     platform_selection = display_platform_options(os_selection, images)
     image_selection = display_image_options(os_selection, platform_selection, images)
-    
-    # Download the image and get the file name
+
+    os.system('clear')
+    wifi_name = input('Type WIFI name: ')
+    wifi_pass = input('Type WIFI pass: ')
+    os.system('clear')
+
     downloaded_file = download_image(image_selection["name"], image_selection["url"])
 
     os.system('clear')
     print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + str(image_selection["name"]))
     print(Fore.LIGHTBLUE_EX + 'Installing ' + Fore.LIGHTGREEN_EX + str(image_selection["name"]) + Fore.LIGHTBLUE_EX + ' At ' + Fore.CYAN + str(selected_disk) + Fore.LIGHTBLUE_EX + ' ...' + Fore.RESET)
 
-    # Use the downloaded file name with xzcat
     subprocess.run(f'xzcat {downloaded_file} | sudo dd of={selected_disk} bs=4M conv=fsync status=progress', shell=True)
+    os.system('clear')
 
     if not keep_file:
         subprocess.run(f'rm {downloaded_file}', shell=True)
-    
+
+    subprocess.run('mkdir /mnt/image_boot',shell=True)
+    subprocess.run('mkdir /mnt/image_rootfs',shell=True)
+    mnt_boot = '/mnt/image_boot'
+    mnt_rootfs = '/mnt_image_rootfs'
     os.system('clear')
+    print(Fore.LIGHTBLUE_EX + 'Mounting ' + Fore.LIGHTGREEN_EX + 'BOOT' + Fore.LIGHTBLUE_EX + ' and ' + Fore.LIGHTGREEN_EX + 'ROOTFS' + Fore.LIGHTBLUE_EX + ' to the system' + Fore.RESET)
+    subprocess.run(f'sudo mount {selected_disk}1 /mnt/image_boot',shell=True)
+    subprocess.run(f'sudo mount {selected_disk}2 /mnt/image_rootfs',shell=True)
+    time.sleep(15)
+    os.system('clear')
+
     print(Fore.LIGHTGREEN_EX + 'Successfully Downloaded Image ' + Fore.CYAN + str(image_selection["name"]))
     print(Fore.LIGHTGREEN_EX + 'Successfully Installed Image ' + Fore.CYAN + str(image_selection["name"]) + Fore.LIGHTGREEN_EX + ' At ' + Fore.CYAN + str(selected_disk) + Fore.RESET)
+
+
+    subprocess.run('sudo touch ssh',shell=True)
+    subprocess.run(f'sudo wpa_passphrase {wifi_name} {wifi_pass} > wpa_supplicant.conf',shell=True)
+    ssh_file_path = "ssh"
+    wpa_supplicant_file_path = "wpa_supplicant.conf"
+
+    subprocess.run(f'sudo cp {ssh_file_path} {mnt_boot}', shell=True)
+    print(Fore.LIGHTGREEN_EX + 'SSH Enabled' + Fore.RESET)
+    subprocess.run(f'sudo cp {wpa_supplicant_file_path} {mnt_boot}', shell=True)
+    print(Fore.LIGHTGREEN_EX + 'WIFI network added' + Fore.RESET)
+
+    subprocess.run('sudo umount /mnt/image_boot',shell=True)
+    subprocess.run('sudo umount /mnt/image_rootfs',shell=True)   
+
+    subprocess.run('sudo rm -rf /mnt/image_boot',shell=True)
+    subprocess.run('sudo rm -rf /mnt/image_rootfs',shell=True)
 
 if __name__ == "__main__":
     main()
