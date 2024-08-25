@@ -20,6 +20,11 @@ python imageinstaller.py -keep
 ## Available Images Menu
 ![available_images_selection](https://github.com/user-attachments/assets/5ce0386f-4412-45c2-a0f4-62c08e061cf3)
 
+## WIFI Setup
+This stores the WIFI network so that the device can have access right after boot
+
+![wifi](https://github.com/user-attachments/assets/6015934a-108d-482a-9d34-f72840ab6570)
+
 ## Downloading Image
 ![downloading_image](https://github.com/user-attachments/assets/b03617c1-3227-4e38-a454-6ee1a3f95c86)
 
@@ -27,4 +32,6 @@ python imageinstaller.py -keep
 ![installing_image](https://github.com/user-attachments/assets/45c27dee-a2a4-47d7-8e07-adef7a2e2ea2)
 
 ## Done
-![done](https://github.com/user-attachments/assets/ad448e76-1872-4957-aa10-4c5b79f25835)
+This will also add the WIFI netowrk we defined earlier and also enable ssh
+![done](https://github.com/user-attachments/assets/45030631-4fdc-4eb5-95ea-18424593c1ef)
+
